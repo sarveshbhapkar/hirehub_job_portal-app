@@ -12,14 +12,14 @@ const Header = () => {
         
         </Link>
 
-        {/* <Button className="outline" >Login</Button> */}
+        <Button className="outline" >Login</Button>
 
-        <SignedOut>
+        {/* <SignedOut>
             <SignInButton />
           </SignedOut>
           <SignedIn>
             <UserButton />
-          </SignedIn>
+          </SignedIn> */}
     </nav>
 
     </>

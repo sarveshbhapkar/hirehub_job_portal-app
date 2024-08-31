@@ -1,0 +1,50 @@
+[
+    {
+      "question": "What is HireHub?",
+      "answer": "HireHub is a comprehensive job portal that connects employers with job seekers. Companies can post job opportunities, and users can search and apply for jobs that match their skills and interests. HireHub provides intuitive interfaces, secure authentication, and tools to streamline the hiring process for both employers and job seekers."
+    },
+    {
+      "question": "How do I post a job on HireHub?",
+      "answer": "As an employer, you can post a job by logging in and navigating to the 'Post a Job' section. Simply fill in the job details, including title, description, location, and requirements, then submit the form to create a new job listing on HireHub."
+    },
+    {
+      "question": "How can I search for jobs on HireHub?",
+      "answer": "Job seekers can search for jobs using the search bar on the homepage or the dedicated job search page. You can filter job listings by keywords, location, industry, and other criteria to find the most relevant opportunities."
+    },
+    {
+      "question": "How do I apply for a job on HireHub?",
+      "answer": "To apply for a job, click on the job listing that interests you, and follow the provided application instructions. You may need to upload your resume, cover letter, and any additional documents required by the employer."
+    },
+    {
+      "question": "Can I save jobs on HireHub to apply later?",
+      "answer": "Yes, you can save job listings by clicking the 'Save Job' button on the job listing page. These saved jobs can be easily accessed later from the 'Saved Jobs' section in your profile."
+    },
+    {
+      "question": "How do I track my job applications on HireHub?",
+      "answer": "You can monitor the progress of your job applications in the 'My Applications' section of your profile. This section provides real-time updates on the status of each application you have submitted."
+    },
+    {
+      "question": "How do I reset my HireHub password?",
+      "answer": "If you forget your password, you can reset it by clicking on the 'Forgot Password' link on the login page. Follow the instructions to receive a password reset link via email."
+    },
+    {
+      "question": "Can I edit my job listing after posting it?",
+      "answer": "Yes, employers can edit their job listings even after posting. Simply go to the 'My Jobs' section, select the job listing you want to edit, make the necessary changes, and save the updates."
+    },
+    {
+      "question": "How do I contact an employer on HireHub?",
+      "answer": "To contact an employer, navigate to the job listing and use the 'Contact Employer' feature, if available. Some employers may also provide direct contact information within the job description."
+    },
+    {
+      "question": "Does HireHub offer email notifications for new jobs?",
+      "answer": "Yes, job seekers can subscribe to email notifications to receive alerts about new job postings that match their preferences. You can set up these notifications in the 'Job Alerts' section of your profile."
+    },
+    {
+      "question": "How do I delete my HireHub account?",
+      "answer": "To delete your HireHub account, go to the 'Account Settings' section in your profile, and select the 'Delete Account' option. Please note that this action is irreversible and will permanently remove all your data."
+    },
+    {
+      "question": "Is there a fee for using HireHub?",
+      "answer": "HireHub is free for job seekers. Employers can post a limited number of jobs for free, but may choose to purchase premium plans for additional features and enhanced visibility."
+    }
+  ]
