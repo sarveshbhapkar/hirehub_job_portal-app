@@ -10,47 +10,89 @@ import JobListing from './pages/job-listing'
 import JobPage from './pages/job'
 import SavedJobs from './pages/saved-job'
 import { ThemeProvider } from './components/theme-provider'
+import ProtectedRoute from './components/protected-route'
 
 const router = createBrowserRouter([
 
   {
-    element:<AppLayout/>,
-    children:[
+    element: <AppLayout />,
+    children: [
       {
-        path:'/',
-        element:<LandingPage/>
+        path: '/',
+        element: <LandingPage />
       },
 
       {
-        path:'/onboarding',
-        element:<Onboarding/>
+        path: '/onboarding',
+
+        element: (
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        )
       },
 
       {
-        path:'/job',
-        element:<JobListing/>
+        path: '/JobPage',
+        element: (
+          <ProtectedRoute>
+            <JobListing />
+          </ProtectedRoute>
+        )
+
+
       },
       {
-        path:'/onboarding',
-        element:<Onboarding/>
+        path: '/onboarding',
+        element:
+          (
+            <ProtectedRoute>
+              <Onboarding />
+            </ProtectedRoute>
+          )
+
+
+
       },
       {
-        path:'/job/:id',
-        element:<JobPage/>
+        path: '/job/:id',
+        element: (
+          <ProtectedRoute>
+            <JobPage />
+          </ProtectedRoute>
+        )
+
+
       },
       {
-        path:'/post-job',
-        element:<Onboarding/>
+        path: '/post-job',
+        element: (
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        )
+
       },
       {
-        path:'/saved-job',
-        element:<SavedJobs/>
+        path: '/saved-job',
+        element: (
+          <ProtectedRoute>
+            <SavedJobs />
+          </ProtectedRoute>
+        )
+
       },
       {
-        path:'/my-jobs',
-        element:<MyJobs/>
+        path: '/my-jobs',
+        element: (
+          <ProtectedRoute>
+            <MyJobs />
+          </ProtectedRoute>
+        )
+
+
       },
-     
+
     ]
   }
 ])
@@ -61,8 +103,8 @@ function App() {
   return (
 
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-    <RouterProvider router={router} />
-  </ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
 
   )
 }
