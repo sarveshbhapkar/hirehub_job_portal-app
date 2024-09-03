@@ -1,4 +1,4 @@
-import { getJobs } from '@/api/apijobs'
+import { getJobs, getMyJobs } from '@/api/apijobs'
 import JobCard from '@/components/job-card'
 import useFetch from '@/hooks/use-fetch'
 import { useSession, useUser } from '@clerk/clerk-react'
@@ -16,7 +16,7 @@ const JobListing = () => {
 const {fn:fnJobs,
         data:jobs,
          loadingJobs,
-        } = useFetch(getJobs,{
+        } = useFetch(getMyJobs,{
           location,
           company_id,
           searchQuery
@@ -40,20 +40,25 @@ if (!isLoaded) {
     
     )}
 
-    {loadingJobs ===false && (
-      
-      <div  className='mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
-        {jobs?.length ?(
-            jobs.map((job)=>{
+{loadingJobs && (
+        <BarLoader className="mt-4" width={"100%"} color="#36d7b7" />
+      )}
 
-              return <JobCard key={job.id} />
+      {loadingJobs === false && (
+        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {jobs?.length ? (
+            jobs.map((job) => {
+              return (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  savedInit={job?.saved?.length > 0}
+                />
+              );
             })
-        ):(
-          <div> No Jobs Found </div>
-          
-        )}
-        
-        
+          ) : (
+            <div>No Jobs Found 😢</div>
+          )}
       </div>
 
     )}
