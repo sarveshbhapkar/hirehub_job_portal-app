@@ -1,149 +1,69 @@
-import React from 'react'
-import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerDescription,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-  } from "@/components/ui/drawer"
-import { Button } from './ui/button'
-import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
-import { Label } from '@radix-ui/react-label'
-import { z } from 'zod'
-import { Controller, useForm } from 'react-hook-form'
+import supabaseClient, { supabaseUrl } from "@/utils/supabase";
 
+export async function applyToJob(token, _, jobData) {
+  const supabase = await supabaseClient(token);
 
-const ApplyJobDrawer = ({ user, job, applied = false, fetchJob }) => {
-    const {
-      register,
-      handleSubmit,
-      control,
-      formState: { errors },
-      reset,
-    } = useForm({
-      resolver: zodResolver(schema),
-    });
-  
-    const {
-      loading: loadingApply,
-      error: errorApply,
-      fn: fnApply,
-    } = useFetch(applyToJob);
-  
-    const onSubmit = (data) => {
-      fnApply({
-        ...data,
-        job_id: job.id,
-        candidate_id: user.id,
-        name: user.fullName,
-        status: "applied",
-        resume: data.resume[0],
-      }).then(() => {
-        fetchJob();
-        reset();
-      });
-    };
+  const random = Math.floor(Math.random() * 90000);
+  const fileName = `resume-${random}-${jobData.candidate_id}`;
 
+  const { error: storageError } = await supabase.storage
+    .from("resumes")
+    .upload(fileName, jobData.resume);
 
-  return (
-    <Drawer open={applied ? false : undefined}>
-      <DrawerTrigger asChild>
-        <Button
-          size="lg"
-          variant={job?.isOpen && !applied ? "blue" : "destructive"}
-          disabled={!job?.isOpen || applied}
-        >
-          {job?.isOpen ? (applied ? "Applied" : "Apply") : "Hiring Closed"}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>
-            Apply for {job?.title} at {job?.company?.name}
-          </DrawerTitle>
-          <DrawerDescription>Please Fill the form below.</DrawerDescription>
-        </DrawerHeader>
+  if (storageError) {
+    console.error("Error Uploading Resume:", storageError);
+    return null;
+  }
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 p-4 pb-0"
-        >
-          <Input
-            type="number"
-            placeholder="Years of Experience"
-            className="flex-1"
-            {...register("experience", {
-              valueAsNumber: true,
-            })}
-          />
-          {errors.experience && (
-            <p className="text-red-500">{errors.experience.message}</p>
-          )}
+  const resume = `${supabaseUrl}/storage/v1/object/public/resumes/${fileName}`;
 
-          <Input
-            type="text"
-            placeholder="Skills (Comma Separated)"
-            className="flex-1"
-            {...register("skills")}
-          />
-          {errors.skills && (
-            <p className="text-red-500">{errors.skills.message}</p>
-          )}
+  const { data, error } = await supabase
+    .from("applications")
+    .insert([
+      {
+        ...jobData,
+        resume,
+      },
+    ])
+    .select();
 
-          <Controller
-            name="education"
-            control={control}
-            render={({ field }) => (
-              <RadioGroup onValueChange={field.onChange} {...field}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Intermediate" id="intermediate" />
-                  <Label htmlFor="intermediate">Intermediate</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Graduate" id="graduate" />
-                  <Label htmlFor="graduate">Graduate</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Post Graduate" id="post-graduate" />
-                  <Label htmlFor="post-graduate">Post Graduate</Label>
-                </div>
-              </RadioGroup>
-            )}
-          />
-          {errors.education && (
-            <p className="text-red-500">{errors.education.message}</p>
-          )}
+  if (error) {
+    console.error("Error Submitting Application:", error);
+    return null;
+  }
 
-          <Input
-            type="file"
-            accept=".pdf, .doc, .docx"
-            className="flex-1 file:text-gray-500"
-            {...register("resume")}
-          />
-          {errors.resume && (
-            <p className="text-red-500">{errors.resume.message}</p>
-          )}
-          {errorApply?.message && (
-            <p className="text-red-500">{errorApply?.message}</p>
-          )}
-          {loadingApply && <BarLoader width={"100%"} color="#36d7b7" />}
-          <Button type="submit" variant="blue" size="lg">
-            Apply
-          </Button>
-        </form>
+  return data;
+}
 
-        <DrawerFooter>
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-};
+export async function updateApplicationStatus(token, { job_id }, status) {
+  const supabase = await supabaseClient(token);
 
+  const { data, error } = await supabase
+    .from("applications")
+    .update({ status })
+    .eq("job_id", job_id)
+    .select();
 
-export default ApplyJobDrawer;
+  if (error || data.length === 0) {
+    console.error("Error Updating Application Status:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getApplications(token, { user_id }) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*, job:jobs(title, company:companies(name))")
+    .eq("candidate_id", user_id);
+
+  if (error) {
+    console.error("Error Fetching Applications:", error);
+    return null;
+  }
+
+  return data;
+}

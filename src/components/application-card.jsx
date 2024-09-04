@@ -19,7 +19,6 @@ import {
 } from "./ui/select";
 
 const ApplicationCard = ({ application, isCandidate = false }) => {
-    
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = application?.resume;

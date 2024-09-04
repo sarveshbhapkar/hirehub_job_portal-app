@@ -1,106 +1,69 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "./ui/drawer";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { addNewCompany } from "@/api/apiCompanies";
-import useFetch from "@/hooks/use-fetch";
-import { BarLoader } from "react-spinners";
-import { useEffect } from "react";
+import supabaseClient, { supabaseUrl } from "@/utils/supabase";
 
-const schema = z.object({
-  name: z.string().min(1, { message: "Company name is required" }),
-  logo: z
-    .any()
-    .refine(
-      (file) =>
-        file[0] &&
-        (file[0].type === "image/png" || file[0].type === "image/jpeg"),
-      { message: "Only Images are allowed" }
-    ),
-});
+export async function applyToJob(token, _, jobData) {
+  const supabase = await supabaseClient(token);
 
-const AddCompanyDrawer = ({ fetchCompanies }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(schema),
-  });
+  const random = Math.floor(Math.random() * 90000);
+  const fileName = `resume-${random}-${jobData.candidate_id}`;
 
-  const {
-    loading: loadingAddCompany,
-    error: errorAddCompany,
-    data: dataAddCompany,
-    fn: fnAddCompany,
-  } = useFetch(addNewCompany);
+  const { error: storageError } = await supabase.storage
+    .from("resumes")
+    .upload(fileName, jobData.resume);
 
-  const onSubmit = (data) => {
-    fnAddCompany({
-      ...data,
-      logo: data.logo[0],
-    });
-  };
+  if (storageError) {
+    console.error("Error Uploading Resume:", storageError);
+    return null;
+  }
 
-  useEffect(() => {
-    if (dataAddCompany?.length > 0) fetchCompanies();
-  }, [loadingAddCompany]);
+  const resume = `${supabaseUrl}/storage/v1/object/public/resumes/${fileName}`;
 
-  return (
-    <Drawer>
-      <DrawerTrigger>
-        <Button type="button" size="sm" variant="secondary">
-          Add Company
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Add a New Company</DrawerTitle>
-        </DrawerHeader>
+  const { data, error } = await supabase
+    .from("applications")
+    .insert([
+      {
+        ...jobData,
+        resume,
+      },
+    ])
+    .select();
 
-        <form className="flex gap-2 p-4 pb-0">
-          <Input placeholder="Company name" {...register("name")} />
-          <Input
-            type="file"
-            accept="image/*"
-            className=" file:text-gray-500"
-            {...register("logo")}
-          />
-          <Button
-            type="button"
-            onClick={handleSubmit(onSubmit)}
-            variant="destructive"
-            className="w-40"
-          >
-            Add
-          </Button>
-        </form>
-        {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-        {errors.logo && <p className="text-red-500">{errors.logo.message}</p>}
-        {errorAddCompany?.message && (
-          <p className="text-red-500">{errorAddCompany?.message}</p>
-        )}
-        {loadingAddCompany && <BarLoader width={"100%"} color="#36d7b7" />}
-        <DrawerFooter>
-          <DrawerClose asChild>
-            <Button variant="secondary" type="button">
-              Cancel
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-};
+  if (error) {
+    console.error("Error Submitting Application:", error);
+    return null;
+  }
 
-export default AddCompanyDrawer;
+  return data;
+}
+
+export async function updateApplicationStatus(token, { job_id }, status) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error } = await supabase
+    .from("applications")
+    .update({ status })
+    .eq("job_id", job_id)
+    .select();
+
+  if (error || data.length === 0) {
+    console.error("Error Updating Application Status:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getApplications(token, { user_id }) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*, job:jobs(title, company:companies(name))")
+    .eq("candidate_id", user_id);
+
+  if (error) {
+    console.error("Error Fetching Applications:", error);
+    return null;
+  }
+
+  return data;
+}
