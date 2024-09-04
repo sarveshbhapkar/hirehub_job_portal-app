@@ -122,8 +122,13 @@ const JobPage = () => {
         </div>
        )}
       
+       {
+        job?.applications?.length > 0 && job?.recruiter_id ===user?.id
+       }
 
-      
+      <h2  className='text-2xl sm:text-3xl font-bold'>
+        Applications
+        </h2>
     </div>
   )
 }
