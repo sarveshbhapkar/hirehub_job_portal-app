@@ -1,5 +1,5 @@
-import { getCompanies } from "@/api/apicompanies";
-import { getJobs } from "@/api/apijobs";
+import { getCompanies } from "@/api/apiCompanies";
+import { getJobs } from "@/api/apiJobs";
 import JobCard from "@/components/job-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

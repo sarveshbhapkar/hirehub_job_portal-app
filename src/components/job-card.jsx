@@ -9,7 +9,7 @@ import {
 import { Heart, MapPinIcon, Trash2Icon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-import { deleteJob, saveJob } from "@/api/apijobs";
+import { deleteJob, saveJob } from "@/api/apiJobs";
 import useFetch from "@/hooks/use-fetch";
 import { useEffect, useState } from "react";
 import { BarLoader } from "react-spinners";
