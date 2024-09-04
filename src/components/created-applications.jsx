@@ -1,9 +1,9 @@
-import { getApplications } from "@/api/apiApplications";
-import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect } from "react";
-import { BarLoader } from "react-spinners";
 import ApplicationCard from "./application-card";
+import { useEffect } from "react";
+import { getApplications } from "@/api/apiApplication";
+import useFetch from "@/hooks/use-fetch";
+import { BarLoader } from "react-spinners";
 
 const CreatedApplications = () => {
   const { user } = useUser();
@@ -18,6 +18,7 @@ const CreatedApplications = () => {
 
   useEffect(() => {
     fnApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loadingApplications) {
@@ -26,12 +27,12 @@ const CreatedApplications = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      {applications.map((application) => {
+      {applications?.map((application) => {
         return (
           <ApplicationCard
             key={application.id}
             application={application}
-            isCandidate
+            isCandidate={true}
           />
         );
       })}

@@ -2,6 +2,7 @@ import { getCompanies } from "@/api/apiCompanies";
 import { addNewJob } from "@/api/apiJobs";
 import AddCompanyDrawer from "@/components/add-company-drawer";
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -32,32 +33,18 @@ const schema = z.object({
 });
 
 const PostJob = () => {
-  const { isLoaded, user } = useUser();
+  const { user, isLoaded } = useUser();
   const navigate = useNavigate();
 
   const {
     register,
-    control,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      location: "",
-      company_id: "",
-      requirements: "",
-    },
+    defaultValues: { location: "", company_id: "", requirements: "" },
     resolver: zodResolver(schema),
   });
-
-  const {
-    fn: fnCompanies,
-    data: companies,
-    loading: loadingCompanies,
-  } = useFetch(getCompanies);
-
-  useEffect(() => {
-    if (isLoaded) fnCompanies();
-  }, [isLoaded]);
 
   const {
     loading: loadingCreateJob,
@@ -78,6 +65,19 @@ const PostJob = () => {
     if (dataCreateJob?.length > 0) navigate("/jobs");
   }, [loadingCreateJob]);
 
+  const {
+    loading: loadingCompanies,
+    data: companies,
+    fn: fnCompanies,
+  } = useFetch(getCompanies);
+
+  useEffect(() => {
+    if (isLoaded) {
+      fnCompanies();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
+
   if (!isLoaded || loadingCompanies) {
     return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
   }
@@ -91,7 +91,6 @@ const PostJob = () => {
       <h1 className="gradient-title font-extrabold text-5xl sm:text-7xl text-center pb-8">
         Post a Job
       </h1>
-
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-4 p-4 pb-0"
@@ -111,30 +110,27 @@ const PostJob = () => {
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by Location" />
+                  <SelectValue placeholder="Job Location" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {State.getStatesOfCountry("IN").map(({ name }) => {
-                      return (
-                        <SelectItem key={name} value={name}>
-                          {name}
-                        </SelectItem>
-                      );
-                    })}
+                    {State.getStatesOfCountry("IN").map(({ name }) => (
+                      <SelectItem key={name} value={name}>
+                        {name}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             )}
           />
-
           <Controller
             name="company_id"
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by Company">
+                  <SelectValue placeholder="Company">
                     {field.value
                       ? companies?.find((com) => com.id === Number(field.value))
                           ?.name
@@ -143,13 +139,11 @@ const PostJob = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {companies?.map(({ name, id }) => {
-                      return (
-                        <SelectItem key={name} value={id}>
-                          {name}
-                        </SelectItem>
-                      );
-                    })}
+                    {companies?.map(({ name, id }) => (
+                      <SelectItem key={name} value={id}>
+                        {name}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -163,6 +157,7 @@ const PostJob = () => {
         {errors.company_id && (
           <p className="text-red-500">{errors.company_id.message}</p>
         )}
+
         <Controller
           name="requirements"
           control={control}
@@ -172,6 +167,9 @@ const PostJob = () => {
         />
         {errors.requirements && (
           <p className="text-red-500">{errors.requirements.message}</p>
+        )}
+        {errors.errorCreateJob && (
+          <p className="text-red-500">{errors?.errorCreateJob?.message}</p>
         )}
         {errorCreateJob?.message && (
           <p className="text-red-500">{errorCreateJob?.message}</p>
